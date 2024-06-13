@@ -7,31 +7,9 @@ from mutagen.mp4 import MP4
 import wave
 from mutagen import File
 from dataclasses import dataclass
-from db_manager import DBManager
+from src.utils.db_manager import DBManager
 from pathlib import Path
-
-
-def windows_path_to_posix_relative(windows_path, start_directory='Music'):
-    """
-    Convert a Windows path to a relative POSIX path starting from a specified directory.
-
-    Parameters:
-    - windows_path (str): The Windows path.
-    - start_directory (str): The directory from which the relative path should start. Default is 'Documents'.
-
-    Returns:
-    - str: The relative POSIX path.
-    """
-    # Convert Windows path to a Path object
-    path_object = Path(windows_path)
-
-    # Find the index of the start directory
-    start_index = path_object.parts.index(start_directory)
-
-    # Get the relative path from the start directory
-    relative_path = Path(*path_object.parts[start_index:]).as_posix()
-
-    return relative_path
+import logging as lg
 
 
 @dataclass
@@ -75,6 +53,14 @@ class FileInfo:
 
 class Music:
     def __init__(self, file_path, extension=None):
+        lg.basicConfig(filename="music_class.log",
+                       format='%(asctime)s %(message)s',
+                       filemode='a')
+        self.logger = lg.Logger()
+
+        if not os.path.exists(file_path):
+            self.logger.error("File Not Found! Info: \n File: {}".format(file_path))
+            raise FileNotFoundError("No such file found: {}".format(file_path))
 
         self.dbobj = DBManager()
         self.audio_file = None
@@ -82,29 +68,54 @@ class Music:
         self.audio = None
         self.audio_info = None
         extension = extension if extension else file_path.lower()[-4:].replace(".", "")
+
         if extension not in ['mp3', 'flac', 'm4a', 'wav']:
+            self.logger.error("Unsupported file! Info: \n File: {} \n Extension: {}".format(file_path, extension))
             raise ValueError("Invalid File")
+
         self.file_info = FileInfo(file_path=file_path, file_type=extension)
-        if os.path.exists(file_path):
-            try:
-                if extension == 'mp3':
-                    self.audio = EasyID3(file_path)
-                    self.audio_info = MP3(file_path)
-                elif extension == 'flac':
-                    self.audio = FLAC(file_path)
-                    self.audio_info = self.audio
-                elif extension == 'm4a':
-                    self.audio = MP4(file_path)
-                    self.audio_info = self.audio
-                elif extension == "wav":
-                    pass
-                else:
-                    raise ValueError("Unknown file type: {}".format(file_path))
-            except Exception as e:
-                print("Error reading music file: {}".format(file_path))
-            pass
-        else:
-            raise FileNotFoundError("No such file found: {}".format(file_path))
+        self.read_file(extension, file_path)
+
+    def read_file(self, extension, file_path):
+        try:
+            if extension == 'mp3':
+                self.audio = EasyID3(file_path)
+                self.audio_info = MP3(file_path)
+            elif extension == 'flac':
+                self.audio = FLAC(file_path)
+                self.audio_info = self.audio
+            elif extension == 'm4a':
+                self.audio = MP4(file_path)
+                self.audio_info = self.audio
+            elif extension == "wav":
+                pass
+            else:
+                raise ValueError("Unknown file type: {}".format(file_path))
+        except Exception as e:
+            print("Error reading music file: {}".format(file_path))
+
+    @staticmethod
+    def windows_path_to_posix_relative(windows_path, start_directory='Music'):
+        """
+        Convert a Windows path to a relative POSIX path starting from a specified directory.
+
+        Parameters:
+        - windows_path (str): The Windows path.
+        - start_directory (str): The directory from which the relative path should start. Default is 'Documents'.
+
+        Returns:
+        - str: The relative POSIX path.
+        """
+        # Convert Windows path to a Path object
+        path_object = Path(windows_path)
+
+        # Find the index of the start directory
+        start_index = path_object.parts.index(start_directory)
+
+        # Get the relative path from the start directory
+        relative_path = Path(*path_object.parts[start_index:]).as_posix()
+
+        return relative_path
 
     def extract_music_metadata(self):
         self.music_info = MusicInfo(file_path=self.file_info.file_path)
@@ -164,7 +175,7 @@ class Music:
 
     def add_to_db(self):
         try:
-            self.file_info.file_path = windows_path_to_posix_relative(self.file_info.file_path)
+            self.file_info.file_path = self.windows_path_to_posix_relative(self.file_info.file_path)
             self.music_info.file_path = self.file_info.file_path
             self.add_music_info_to_db()
         except Exception as e:
