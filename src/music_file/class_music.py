@@ -9,8 +9,10 @@ import wave
 from mutagen import File
 from dataclasses import dataclass
 from src.utils.db_manager import DBManager
+from src.spotify.class_spotify import Spotify
 from pathlib import Path
 import logging as lg
+import warnings
 
 class Music:
     def __init__(self, file_path, extension=None):
@@ -99,9 +101,6 @@ class Music:
                         mp3_data[key] = mp3_data[key][0]
             self.music_info = mp3_data
 
-            """        else:
-            self.music_info.title = os.path.basename(self.file_info.file_path)[:-4].replace(".", " ").strip()"""
-
     def extract_file_info(self):
         if not self.audio:
             return None
@@ -121,6 +120,9 @@ class Music:
             self.audio_quality_data = dict(self.audio.info)
 
     def embed_tag(self, values_to_update: dict) -> object:
+        if self.extension == "wav":
+            warnings.warn("Cannot perform action on file type: WAV")
+            return True
         for tag, value in values_to_update.items():
             if not all([tag, value]):
                 continue
@@ -132,18 +134,24 @@ class Music:
         print(self.audio_quality_data)
 
     def clean_up_bad_tags_values(self):
+        if self.extension == "wav":
+            warnings.warn("Cannot perform action on file type: WAV")
+            return True
         for tag in self.config["blacklisted_tags"]:
             if tag in self.music_info:
                 self.audio.pop(tag)
         self.audio.save()
 
-    def refresh_tags(self):
+    def refresh_tags(self, update_from_spotify = False):
         if self.extension == "wav":
+            warnings.warn("Cannot perform action on file type: WAV")
             return True
         self.clean_up_bad_tags_values()
-        new_tags = self.find_tags_from_spotify()
-        if any([x in self.config["expected_tags"] for x in new_tags]):
-            self.embed_tag(new_tags)
+        if update_from_spotify:
+            new_tags = self.find_tags_from_spotify()
+            if any([x in self.config["expected_tags"] for x in new_tags]):
+                self.embed_tag(new_tags)
 
     def find_tags_from_spotify(self):
-        return {}
+        spobj = Spotify()
+        return spobj.search_track(self.music_info["title"])
