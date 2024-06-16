@@ -14,6 +14,7 @@ from pathlib import Path
 import logging as lg
 import warnings
 
+
 class Music:
     def __init__(self, file_path, extension=None):
         lg.basicConfig(filename="music_class.log",
@@ -142,7 +143,7 @@ class Music:
                 self.audio.pop(tag)
         self.audio.save()
 
-    def refresh_tags(self, update_from_spotify = False):
+    def refresh_tags(self, update_from_spotify=False):
         if self.extension == "wav":
             warnings.warn("Cannot perform action on file type: WAV")
             return True

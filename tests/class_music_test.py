@@ -29,6 +29,12 @@ def test_flac_tag_collection():
     assert len(mobj.music_info.keys()) != 0
 
 
+def test_flac_info_collection():
+    mobj = Music(r"J:\Downloads\Telegram Desktop\01 Satyanaas (From _Chandu Champion_).flac")
+    mobj.display_music_info()
+    assert len(mobj.audio_quality_data.keys()) != 0
+
+
 def test_mp3_tag_collection():
     mobj = Music(r"J:\Downloads\38833FF26BA1D.UnigramPreview_g9c9v27vpyspw!App\Ahankaar (1995) Movie Mp3 Songs ["
                  r"SongsMp3\Rama-Rama-Poornima.mp3")
