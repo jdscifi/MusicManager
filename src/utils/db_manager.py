@@ -113,5 +113,23 @@ class DBManager:
         # Commit the changes (required after INSERT)
         self.connection_obj.commit()
 
+    def add_file_to_db(self):
+        self.dbobj.insert_record("file_info", self.audio_quality_data.to_dict())
+
+    def add_music_info_to_db(self):
+        self.dbobj.insert_record("music_info", self.music_info)
+
+    def add_to_db(self):
+        try:
+            self.audio_quality_data.file_path = self.windows_path_to_posix_relative(self.audio_quality_data.file_path)
+            self.music_info.file_path = self.audio_quality_data.file_path
+            self.add_music_info_to_db()
+        except Exception as e:
+            print("Music info table not updated", self.audio_quality_data.file_path, e)
+        try:
+            self.add_file_to_db()
+        except Exception as e:
+            print("File info table not updated", self.audio_quality_data.file_path, e)
+
     def __del__(self):
         self.connection_obj.close()
