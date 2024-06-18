@@ -7,24 +7,23 @@ from telethon.tl.functions.messages import SearchGlobalRequest
 import datetime
 from telethon.errors.rpcerrorlist import FolderIdInvalidError
 
+
 class Telegram():
-    TELEGRAM_APP_ID = None
-    TELEGRAM_API_HASH = None
-    TELEGRAM_CHANNEL_USERNAME = None
 
     def __init__(self):
-        with open(r"J:\dev\telegram.config","r") as file:
-            creds = json.load(file)
-            self.TELEGRAM_APP_ID = creds["TELEGRAM_APP_ID"]
-            self.TELEGRAM_API_HASH = creds["TELEGRAM_API_HASH"]
-            self.TELEGRAM_CHANNEL_USERNAME = creds["TELEGRAM_CHANNEL_USERNAME"]
+        self.TELEGRAM_APP_ID = os.getenv("TELEGRAM_APP_ID")
+        self.TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH")
+        self.TELEGRAM_CHANNEL_USERNAME = os.getenv("TELEGRAM_CHANNEL_USERNAME")
         # Create the client and connect
-        self.client = TelegramClient(
-            'Default_Session_{}'.format(time()),
-            self.TELEGRAM_APP_ID,
-            self.TELEGRAM_API_HASH
-        )
-        self.client.start()
+        if all([self.TELEGRAM_APP_ID, self.TELEGRAM_API_HASH, self.TELEGRAM_CHANNEL_USERNAME]):
+            self.client = TelegramClient(
+                'Default_Session_{}'.format(time()),
+                self.TELEGRAM_APP_ID,
+                self.TELEGRAM_API_HASH
+            )
+            self.client.start()
+        else:
+            raise Exception("Telegram credentials not available")
 
     # Function to download media
     def download_media(self, channel, limit=10, media_filter=InputMessagesFilterPhotos):
