@@ -8,6 +8,7 @@ import logging as lg
 import tempfile
 from src.utils.utilties import delete_key_recursive
 
+
 class SpotifyUtility:
     def __init__(self):
         self.access_token = ""
@@ -16,6 +17,7 @@ class SpotifyUtility:
                        filemode='a')
         self.logger = lg.Logger("spotify_logger")
         self.tmp_dir = os.path.join(tempfile.gettempdir(), "spotify")
+        self.AUTH_URL = 'https://accounts.spotify.com/api/token'
         self.headers = None
         self.CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
         self.CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -37,9 +39,7 @@ class SpotifyUtility:
                     self.access_token = token_data["token"]
                     return True
 
-        AUTH_URL = 'https://accounts.spotify.com/api/token'
-
-        auth_response = rq.post(AUTH_URL, {
+        auth_response = rq.post(self.AUTH_URL, {
             'grant_type': 'client_credentials',
             'client_id': self.CLIENT_ID,
             'client_secret': self.CLIENT_SECRET,
