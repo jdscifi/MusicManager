@@ -8,7 +8,7 @@ import logging as lg
 import tempfile
 from src.utils.utilties import delete_key_recursive
 
-class Spotify:
+class SpotifyUtility:
     def __init__(self):
         self.access_token = ""
         lg.basicConfig(filename="spotify_class.log",
@@ -106,7 +106,7 @@ class Spotify:
                 return False
             search_json = json.loads(search_results.text)
 
-            delete_key_recursive(search_json, "available_markets")
+            search_json = delete_key_recursive(search_json, "available_markets")
 
             self.save_search(search_json)
             return search_json

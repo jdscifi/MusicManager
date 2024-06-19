@@ -9,7 +9,7 @@ import wave
 from mutagen import File
 from dataclasses import dataclass
 from src.utils.db_manager import DBManager
-from src.spotify.class_spotify import Spotify
+from src.spotify.class_spotify_utility import SpotifyUtility
 from pathlib import Path
 import logging as lg
 import warnings
@@ -154,5 +154,5 @@ class Music:
                 self.embed_tag(new_tags)
 
     def find_tags_from_spotify(self):
-        spobj = Spotify()
+        spobj = SpotifyUtility()
         return spobj.search_track(self.music_info["title"])
