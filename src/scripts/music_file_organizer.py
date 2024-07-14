@@ -1,5 +1,5 @@
 import os
-from class_music import Music
+from src.music_file.class_music import Music
 import shutil
 import re
 
@@ -20,21 +20,20 @@ def move_files(all_music_files):
             file_path = os.path.join(path[0], path[1])
             mobj = Music(file_path)
             mobj.extract_music_metadata()
+            # print(list(mobj.music_info.keys()))
             if "album" not in mobj.music_info:
                 print("Unable to extract album name for {}".format(file_path))
                 continue
-
             music_album = make_valid_directory_name(mobj.music_info["album"])
-
             if music_album == "":
                 print("Unable to extract album name for {}".format(file_path))
                 continue
             if music_album in path[0]:
                 print("File already at the expected path: {}".format(file_path))
                 continue
-
             new_location = os.path.join(path[0], music_album)
             os.makedirs(new_location, exist_ok=True)
+            print("{} will be moved here {}".format(file_path, new_location))
             shutil.move(file_path, new_location)
         except Exception as e:
             print(e)
@@ -47,9 +46,10 @@ def process_music_files_in_directory(directory):
             if file.lower().endswith(('.mp3', '.flac', '.m4a', '.wav')):  # Add more formats if needed
                 all_music_files.append((root, file))
             else:
-                print("Unexpected file extension of file: {}".format(os.path.join(root, file)))
-
+                pass
+                # print("Unexpected file extension of file: {}".format(os.path.join(root, file)))
+    print("{} music files found!".format(len(all_music_files)))
     move_files(all_music_files)
 
 
-process_music_files_in_directory(r"J:\Downloads\Telegram Desktop")
+process_music_files_in_directory(r"D:\Downloads\Telegram Desktop")

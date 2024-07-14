@@ -23,7 +23,7 @@ file_exts = []
 
 
 def test_flac_tag_collection():
-    mobj = Music(r"J:\Downloads\Telegram Desktop\01 Satyanaas (From _Chandu Champion_).flac")
+    mobj = Music(r"D:\Downloads\Telegram Desktop\01 - Hum Dil De Chuke Sanam - Chand Chupa Badal Mein.flac")
     wl = mobj.extract_music_metadata()
     mobj.display_music_info()
     assert len(mobj.music_info.keys()) != 0

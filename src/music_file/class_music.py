@@ -13,7 +13,7 @@ from src.spotify.class_spotify_utility import SpotifyUtility
 from pathlib import Path
 import logging as lg
 import warnings
-
+import sys, os
 
 class Music:
     def __init__(self, file_path, extension=None):
@@ -21,7 +21,10 @@ class Music:
                        format='%(asctime)s %(message)s',
                        filemode='a')
         self.logger = lg.Logger("music_logger")
-        with open("config.json", "r") as fi:
+        w = os.path.abspath(sys.modules[Music.__module__].__file__)
+        wo = os.path.join(os.path.dirname(w), "config.json")
+
+        with open(wo, "r") as fi:
             self.config = json.load(fi)
 
         if not os.path.exists(file_path):
@@ -92,7 +95,7 @@ class Music:
         if "m4a" in self.extension:
             self.extract_m4a_data()
         elif "flac" in self.extension:
-            self.music_info = dict([(x[0].lower, x[1]) for x in self.audio.tags])
+            self.music_info = dict([(x[0].lower(), x[1]) for x in self.audio.tags])
         elif "mp3" in self.extension:
             mp3_data = self.audio.tags  # dict([(x[0].lower, x[1]) for x in self.audio_info.tags])
             if isinstance(mp3_data, mutagen.easyid3.EasyID3):
