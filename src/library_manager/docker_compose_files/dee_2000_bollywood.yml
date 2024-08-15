@@ -1,0 +1,15 @@
+version: "2.1"
+services:
+  playlistSync:
+    image: rnagabhyrava/plexplaylistsync:latest
+    container_name: dee_2000_bollywood
+    volumes:
+      - D:\dev\docs\:/data
+    environment:
+      - PLEX_URL=http://192.168.50.141:32400/
+      - PLEX_TOKEN=ggHjXp3WmFyHwKhbeK_E
+      - WRITE_MISSING_AS_CSV=1
+      - APPEND_INSTEAD_OF_SYNC=1
+      - SECONDS_TO_WAIT=84000
+      - DEEZER_PLAYLIST_ID= 12852280581 12754793001
+    restart: unless-stopped

@@ -15,6 +15,7 @@ import logging as lg
 import warnings
 import sys, os
 
+
 class Music:
     def __init__(self, file_path, extension=None):
         lg.basicConfig(filename="music_class.log",
